@@ -32,3 +32,15 @@ export async function createUser({ id,
         throw new Error(`creating user is failed ${error.message}`)
     }
 }
+export async function updateUser({ id,
+    username,
+    name,
+    image,
+    gender,
+    birthday, email }: Params) {
+    try {
+        console.log(username)
+    } catch (error: any) {
+        throw new Error(`creating user is failed ${error.message}`)
+    }
+}
