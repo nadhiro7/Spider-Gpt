@@ -6,7 +6,9 @@ const userSchema = new mongoose.Schema({
     name: {type: String, require: true},
     image: String,
     bio: String,
-    phoneNumber: {type: String, require: true,unique: true}
+    gender: String,
+    birthday: String
+
 })
 
 const User = mongoose.models.User || mongoose.model('User',userSchema);

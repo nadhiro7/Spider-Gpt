@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { IncomingHttpHeaders } from "http";
 
 import { NextResponse } from "next/server";
+import { createUser } from "@/lib/actions/user.actions";
 
 type EventType =
     | "user.created"
@@ -11,12 +12,13 @@ type EventType =
     | "user.updated"
     | "user.deleted";
 type Event = {
-    data: Record<string, string | number | Record<string, string>[]>;
+    data: any;
     object: "event";
     type: EventType;
 };
 
 export const POST = async (request: Request) => {
+    console.log('sdadsad')
     const payload = await request.json();
     const header = headers();
 
@@ -47,20 +49,13 @@ export const POST = async (request: Request) => {
     if (eventType === "user.created") {
         // Resource: https://clerk.com/docs/reference/backend-api/tag/Organizations#operation/CreateOrganization
         // Show what evnt?.data sends from above resource
-        const { id, name, slug, logo_url, image_url, created_by } =
+        const { id, first_name, birthday, email_addresses, image_url, last_name, gender, username } =
             evnt?.data ?? {};
 
         try {
             // @ts-ignore
-            await createCommunity(
-                // @ts-ignore
-                id,
-                name,
-                slug,
-                logo_url || image_url,
-                "org bio",
-                created_by
-            );
+            console.log("user created", evnt?.data);
+            await createUser({ id, username, birthday, gender, image: image_url, name: first_name + ' ' + last_name, email: email_addresses.email_address })
 
             return NextResponse.json({ message: "User created" }, { status: 201 });
         } catch (err) {
@@ -78,7 +73,7 @@ export const POST = async (request: Request) => {
     if (eventType === "email.created") {
         try {
             // Resource: https://clerk.com/docs/reference/backend-api/tag/Organization-Invitations#operation/CreateOrganizationInvitation
-            console.log("Invitation created", evnt?.data);
+            console.log("email created", evnt?.data);
 
             return NextResponse.json(
                 { message: "Invitation created" },
@@ -103,8 +98,6 @@ export const POST = async (request: Request) => {
             const { organization, public_user_data } = evnt?.data;
             console.log("removed", evnt?.data);
 
-            // @ts-ignore
-            await removeUserFromCommunity(public_user_data.user_id, organization.id);
 
             return NextResponse.json({ message: "Member removed" }, { status: 201 });
         } catch (err) {
@@ -126,7 +119,6 @@ export const POST = async (request: Request) => {
             console.log("updated", evnt?.data);
 
             // @ts-ignore
-            await updateCommunityInfo(id, name, slug, logo_url);
 
             return NextResponse.json({ message: "Member removed" }, { status: 201 });
         } catch (err) {
