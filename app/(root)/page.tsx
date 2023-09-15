@@ -1,10 +1,11 @@
-import { UserButton } from '@clerk/nextjs'
-import Image from 'next/image'
 
-export default function Home() {
+
+export default async function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <UserButton afterSignOutUrl="/" />
+    <main className="bg-dark-1 w-screen h-screen flex justify-center items-center max-md:hidden">
+      <div className='bg-dark-3 p-2 rounded-full text-white text-xs'>
+        Select a chat to start messaging
+      </div>
     </main>
   )
 }
