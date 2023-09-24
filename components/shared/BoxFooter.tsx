@@ -10,9 +10,9 @@ interface Props {
 function BoxFooter({ currentUserId, contactUserId, type }: Props) {
     return (
         <div className='h-12 flex sticky bg-dark-2 w-full bottom-0'>
-            <button className={`text-gray-500 px-3`}>
+            {/* <button className={`text-gray-500 px-3`}>
                 <AttachFileIcon fontSize='large' />
-            </button>
+            </button> */}
             <SendForm type={type} currentUserId={currentUserId} contactUserId={contactUserId} />
         </div>
     )

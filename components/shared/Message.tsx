@@ -11,7 +11,7 @@ interface Props {
     type: string
 }
 function Message({ message, currentUserId, handleRpl, type }: Props) {
-    const isCurrentUserMessage = message.sender?._id === currentUserId
+    const isCurrentUserMessage = type === 'bot' ? !message.reply || message.sender?._id !== currentUserId : message.sender?._id === currentUserId
     const date = new Date(message.timestamp)
     const [isOpen, setIsOpen] = useState<boolean>(false)
 
@@ -50,6 +50,12 @@ function Message({ message, currentUserId, handleRpl, type }: Props) {
             {type === 'group' && (
                 <h5 className="text-secondary-500">{message.sender?.name}</h5>
             )}
+            {type === 'bot' && isCurrentUserMessage && (
+                <h5 className="text-secondary-500">{message.sender?.name}</h5>
+            )}
+            {type === 'bot' && !isCurrentUserMessage && (
+                <h5 className="text-secondary-500">{message.Bot?.botName}</h5>
+            )}
             <p className="text-sm mx-1">{message.messageText}</p>
             <p className={`${isCurrentUserMessage ? 'text-gray-400' : 'text-gray-500'} text-xs font-light w-full text-right px-1`}>{date.toUTCString().slice(0, 22)}</p>
             <motion.div variants={{
@@ -74,9 +80,13 @@ function Message({ message, currentUserId, handleRpl, type }: Props) {
                     }
                 }
             }} animate={isOpen ? "open" : "closed"} className={`${isCurrentUserMessage ? 'left-[-50px]' : 'right-[-50px]'} absolute top-1/2 translate-y-[-50%] gap-2`}>
-                <button onClick={replying} className="mr-1 text-gray-500 hover:text-white">
-                    <Reply fontSize="small" />
-                </button>
+                {
+                    type !== 'bot' && (
+                        <button onClick={replying} className="mr-1 text-gray-500 hover:text-white">
+                            <Reply fontSize="small" />
+                        </button>
+                    )
+                }
                 <button onClick={handleClose} className="mr-1 text-gray-500 hover:text-red-700">
                     <DeleteOutline fontSize="small" />
                 </button>

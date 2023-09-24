@@ -1,3 +1,4 @@
+import { deleteBotMessage } from '@/lib/actions/bot.actions'
 import { deleteGroupMessage } from '@/lib/actions/group.actions'
 import { deleteMessage } from '@/lib/actions/message.actions'
 import { pusherClient } from '@/lib/pusher'
@@ -23,7 +24,11 @@ function ConfirmMessage({ message, action, id, open, handleClose, type }: Props)
         if (type === 'user') {
             await deleteMessage(id, path)
         } else {
-            await deleteGroupMessage(id, path)
+            if (type === 'group') {
+                await deleteGroupMessage(id, path)
+            } else {
+                await deleteBotMessage(id, path)
+            }
         }
         handleClose()
     }

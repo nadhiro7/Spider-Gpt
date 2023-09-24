@@ -1,60 +1,56 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import {
+    Radio,
+    RadioGroup,
+    FormControlLabel,
+    FormControl,
+    FormLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
+} from "@mui/material"
 import { ChangeEvent, useState } from "react"
 import { Input } from "../ui/input"
 import Image from "next/image"
 import { isBase64Image } from "@/lib/utils"
 import { useUploadThing } from "@/lib/uploadthing"
-import { createGroup, updateGroup } from "@/lib/actions/group.actions"
 import { usePathname, useRouter } from "next/navigation"
-import { Group } from "@/types"
+import { createBot } from "@/lib/actions/bot.actions"
+
 
 interface Props {
     open: boolean,
     handleClose: () => void,
-    type: string,
-    _id?: string,
-    group?: Group
+    _id: string
 }
-function AddGroup({ open, handleClose, _id, type, group }: Props) {
-    const [name, setName] = useState<string>(group?.groupName ? group?.groupName : '')
+function AddBot({ open, handleClose, _id }: Props) {
+    const [name, setName] = useState<string>('')
     const [files, setFiles] = useState<File[]>([]);
-    const [image, setImage] = useState<string>(group?.groupImage ? group?.groupImage : '');
+    const [image, setImage] = useState<string>('');
     const { startUpload } = useUploadThing("media");
     const [create, setCreate] = useState<boolean>(false)
     const router = useRouter()
     const path = usePathname()
+    const [value, setValue] = useState('public');
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValue((event.target as HTMLInputElement).value);
+    };
     const onSubmit = async () => {
-        if (type === 'Add') {
-            setCreate(true)
-            const blob = image;
-            const hasImageChanged = isBase64Image(blob);
-            if (hasImageChanged) {
-                const imgRes = await startUpload(files);
-                if (imgRes && imgRes[0].fileUrl) {
-                    setImage(imgRes[0].fileUrl)
-                }
+        setCreate(true)
+        const blob = image;
+
+        const hasImageChanged = isBase64Image(blob);
+        if (hasImageChanged) {
+            const imgRes = await startUpload(files);
+
+            if (imgRes && imgRes[0].url) {
+                setImage(imgRes[0].url)
             }
-
-            const newGroup = await createGroup(name, _id!, image, path)
-            setName('')
-            setImage('')
-            setFiles([])
-            setCreate(false)
-            router.push('/groups/' + newGroup._id)
-        } else {
-
-            if (image !== group?.groupImage) {
-                const imgRes = await startUpload(files);
-                if (imgRes && imgRes[0].fileUrl) {
-                    console.log(imgRes[0].fileUrl)
-                    await updateGroup(name, path, imgRes[0].fileUrl)
-                }
-            } else {
-                await updateGroup(name, path)
-            }
-
-            setFiles([])
         }
+
+        const bot = await createBot(name, _id, image, path, value)
+        setName('')
+        setImage('')
+        setFiles([])
+        setCreate(false)
+        router.push('/bots/' + bot._id)
         handleClose()
     }
     const handleImage = (
@@ -78,13 +74,11 @@ function AddGroup({ open, handleClose, _id, type, group }: Props) {
     return (
         <div className="bg-dark-2">
             <Dialog open={open} onClose={handleClose} >
-                <DialogTitle sx={{ color: '#fff' }}>{type} Group</DialogTitle>
+                <DialogTitle sx={{ color: '#fff' }}>Add Bot</DialogTitle>
                 <DialogContent >
-                    {type === 'Add' && (
-                        <DialogContentText sx={{ color: '#fff' }}>
-                            To create group please enter your group name here.
-                        </DialogContentText>
-                    )}
+                    <DialogContentText sx={{ color: '#fff' }}>
+                        To create bot please enter your bot name here.
+                    </DialogContentText>
                     <label className="account-form_image_label mt-2 ml-5">
                         {image ? (
                             <Image
@@ -115,24 +109,37 @@ function AddGroup({ open, handleClose, _id, type, group }: Props) {
                     <input
                         autoFocus
                         id="name"
-                        placeholder="Group name"
+                        placeholder="bot name"
                         className="bg-dark-2 no-focus w-full outline-none p-2 text-light-1 border-b-2 border-white border-solid"
                         type="text"
                         value={name}
                         onChange={(e) => { setName(e.target.value) }}
                     />
+                    <FormControl sx={{ marginTop: '20px', color: 'white' }}>
+                        <FormLabel id="demo-controlled-radio-buttons-group" sx={{ color: 'gray' }}>Type</FormLabel>
+                        <RadioGroup
+                            aria-labelledby="demo-controlled-radio-buttons-group"
+                            name="controlled-radio-buttons-group"
+                            value={value}
+                            row
+                            onChange={handleChange}
+                        >
+                            <FormControlLabel value="public" control={<Radio sx={{
+                                color: 'white',
+                            }} />} label="Public" />
+                            <FormControlLabel value="private" control={<Radio sx={{
+                                color: 'white',
+                            }} />} label="Private" />
+                        </RadioGroup>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <button className=" text-primary-500" onClick={handleClose}>Cancel</button>
-                    {type === 'Add' ? (
-                        <button className="disabled:text-gray-400 text-primary-500" onClick={onSubmit} disabled={name || create ? false : true}>{create ? 'Creating...' : 'Create'}</button>
-                    ) : (
-                        <button className="disabled:text-gray-400 text-primary-500" onClick={onSubmit}>{type}</button>
-                    )}
+                    <button className="disabled:text-gray-400 text-primary-500" onClick={onSubmit} disabled={name || create ? false : true}>{create ? 'Creating...' : 'Create'}</button>
                 </DialogActions>
             </Dialog>
         </div>
     )
 }
 
-export default AddGroup
+export default AddBot

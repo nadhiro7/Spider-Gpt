@@ -5,6 +5,7 @@ import { Send } from "@mui/icons-material";
 import { usePathname } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { SendGroupMessage } from "@/lib/actions/group.actions";
+import { SendBotMessage } from "@/lib/actions/bot.actions";
 // import { pusherClient } from "@/lib/pusher";
 // import { toPusherKey } from "@/lib/utils";
 
@@ -22,21 +23,16 @@ function SendForm({ currentUserId, contactUserId, type }: Props) {
         if (type === 'user') {
             const message = await SendMessage(currentUserId, contactUserId, text, path, reply ? reply?._id : '');
         } else {
-            const message = await SendGroupMessage(currentUserId, contactUserId, text, path, reply ? reply?._id : '');
+            if (type === 'group') {
+                const message = await SendGroupMessage(currentUserId, contactUserId, text, path, reply ? reply?._id : '');
+            } else {
+                await SendBotMessage(currentUserId, contactUserId, text, path, reply ? reply?._id : '');
+
+            }
         }
         localStorage.removeItem('replyMessage')
         setText('')
     }
-    // useEffect(() => {
-    //     pusherClient.subscribe(toPusherKey(path))
-    //     const functionHandler = () => { console.log('new message received') }
-    //     pusherClient.bind('bind:' + path, functionHandler)
-    //     return () => {
-    //         pusherClient.unsubscribe(toPusherKey(path))
-    //         pusherClient.unbind('bind:' + path, functionHandler)
-
-    //     }
-    // }, []);
     return (
 
         <form onSubmit={send} className="flex flex-row w-full">

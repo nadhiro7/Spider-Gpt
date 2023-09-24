@@ -184,7 +184,25 @@ export async function deleteGroupMessage(id: string, path: string) {
         throw error;
     }
 }
-
+export async function deleteGroup(id: string, path: string) {
+    try {
+        connectToDb()
+        await GroupMessage.deleteMany({
+            group: id
+        });
+        await Group.deleteOne({
+            _id: id
+        });
+        await pusherServer.trigger(id,
+            'bind:messageDelete', {
+            message: 'hello'
+        })
+        revalidatePath(path)
+    } catch (error) {
+        console.error('Error Delete Message:', error);
+        throw error;
+    }
+}
 export async function JoinToGroup(user: string | undefined, group: string | undefined, path: string) {
     try {
         connectToDb()
@@ -198,5 +216,30 @@ export async function JoinToGroup(user: string | undefined, group: string | unde
     } catch (error) {
         console.error('Error Add Contact:', error);
         throw error;
+    }
+}
+export async function updateGroup(name: string, path: string, image = '') {
+    try {
+        connectToDb();
+        if (image === '') {
+            const newGroup = await Group.updateOne({
+                groupName: name,
+            })
+            revalidatePath(path)
+            return newGroup;
+        } else {
+            const newGroup = await Group.updateOne({
+                groupImage: image,
+                groupName: name,
+            })
+            revalidatePath(path)
+            return newGroup;
+        }
+
+
+
+
+    } catch (error: any) {
+        throw new Error('failed to update group' + error.message)
     }
 }

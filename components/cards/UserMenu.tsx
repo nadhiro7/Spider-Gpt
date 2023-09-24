@@ -3,10 +3,12 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useState } from 'react';
 import { Variants, motion } from 'framer-motion'
 import { ArrowBackIos, Close, DeleteOutline, Logout, PersonOutlined } from '@mui/icons-material';
-import { leaveGroup } from '@/lib/actions/group.actions';
+import { deleteGroup, leaveGroup } from '@/lib/actions/group.actions';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { DeleteContact } from '@/lib/actions/contact.actions';
+import { leaveBot } from '@/lib/actions/bot.actions';
+import { User } from '@/types';
 const itemVariants: Variants = {
     open: {
         opacity: 1,
@@ -15,15 +17,22 @@ const itemVariants: Variants = {
     },
     closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
 };
-function UserMenu({ type, isJoin, contactUserId, currentUserId }: {
+function UserMenu({ type, isJoin, contactUserId, currentUserId, groupAdmin }: {
     type: string, isJoin: boolean, currentUserId: string,
-    contactUserId: string
+    contactUserId: string, groupAdmin?: User
 }) {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const path = usePathname()
     const router = useRouter()
     const leave = async () => {
         await leaveGroup(contactUserId, currentUserId, path)
+    }
+    const deleteGp = async () => {
+        await deleteGroup(contactUserId, path)
+        router.push('/groups')
+    }
+    const leaveBt = async () => {
+        await leaveBot(contactUserId, currentUserId, path)
     }
     const deleteCnt = async () => {
         await DeleteContact(contactUserId, currentUserId, path)
@@ -79,13 +88,24 @@ function UserMenu({ type, isJoin, contactUserId, currentUserId }: {
                                 <p className='ml-4'>Delete chat</p>
                             </button>
                         </motion.li>
-                    </>) : (
+                    </>) : type === 'group' ? (
                         <>
 
                             <motion.li variants={itemVariants}>
-                                <button onClick={leave} className='text-red-700 text-sm justify-center font-light items-center flex flex-row w-full py-2 px-3 hover:bg-glassmorphism'>
+                                <button onClick={groupAdmin?._id === currentUserId ? deleteGp : leave} className='text-red-700 text-sm justify-center font-light items-center flex flex-row w-full py-2 px-3 hover:bg-glassmorphism'>
                                     <Logout fontSize='small' />
-                                    <p className='ml-4'>Leave group</p>
+                                    <p className='ml-4'>{groupAdmin?._id === currentUserId ? 'Delete' : 'Leave'} group</p>
+                                </button>
+                            </motion.li>
+
+                        </>
+                    ) : (
+                        <>
+
+                            <motion.li variants={itemVariants}>
+                                <button onClick={leaveBt} className='text-red-700 text-sm justify-center font-light items-center flex flex-row w-full py-2 px-3 hover:bg-glassmorphism'>
+                                    <Logout fontSize='small' />
+                                    <p className='ml-4'>Leave bot</p>
                                 </button>
                             </motion.li>
 

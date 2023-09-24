@@ -2,7 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { dark } from '@clerk/themes'
 import '../globals.css'
 export const metadata = {
-    title: 'Next.js 13 with Clerk',
+    title: 'Spider-Gpt Auth',
 }
 
 export default function RootLayout({

@@ -13,10 +13,13 @@ import { getGroups, searchGroups } from '@/lib/actions/group.actions';
 import GroupCard from '../cards/GroupCard';
 import { pusherClient } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
+import { getBots, searchBots } from '@/lib/actions/bot.actions';
+import BotCard from '../cards/botCard';
 
 function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined }) {
     const [users, setUsers] = useState<Array<User>>([])
     const [groups, setGroups] = useState<Array<any>>([])
+    const [bots, setBots] = useState<Array<any>>([])
     const [contacts, setContacts] = useState<Array<User>>([])
     const [isSearch, setIsSearch] = useState<boolean>(false)
     const [text, setText] = useState<string>('')
@@ -35,16 +38,25 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
                 const result = await searchGroups(txt, path)
                 setGroups(result ? JSON.parse(result) : [])
             } else {
-                setIsSearch(txt ? true : false)
-                setText(txt)
-                setUsers([])
-                const result = await searchUsers(txt, id)
-                setUsers(result ? JSON.parse(result) : [])
+                if (path.includes('bots')) {
+                    setIsSearch(txt ? true : false)
+                    setText(txt)
+                    setBots([])
+                    const result = await searchBots(txt, path)
+                    setBots(result ? JSON.parse(result) : [])
+                } else {
+                    setIsSearch(txt ? true : false)
+                    setText(txt)
+                    setUsers([])
+                    const result = await searchUsers(txt, id)
+                    setUsers(result ? JSON.parse(result) : [])
+                }
             }
         } else {
             setIsSearch(false)
             setUsers([])
             setGroups([])
+            setBots([])
             setText('')
         }
     }
@@ -54,6 +66,7 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
             if (path === '/contact') {
                 setUsers([])
                 setGroups([])
+                setBots([])
                 setIsSearch(false)
                 setContacts([])
                 const result = await getContact(_id, path)
@@ -63,6 +76,7 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
                 if (path === '/') {
                     setContacts([])
                     setGroups([])
+                    setBots([])
                     const result = await getUsersWithLastMessages(_id);
                     let msgs: Array<User> = [];
                     result.forEach(element => {
@@ -101,10 +115,21 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
                     if (path === '/groups') {
                         setContacts([])
                         setUsers([])
+                        setBots([])
                         setIsSearch(false)
                         setGroups([])
                         const result = await getGroups(_id as string, path)
                         setGroups(result ? JSON.parse(result) : [])
+                    } else {
+                        if (path === '/bots') {
+                            setContacts([])
+                            setUsers([])
+                            setGroups([])
+                            setIsSearch(false)
+                            setBots([])
+                            const result = await getBots(_id as string, path)
+                            setBots(result ? JSON.parse(result) : [])
+                        }
                     }
                 }
             }
@@ -143,15 +168,25 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
                                 ))
                             }
                         </div>) : (
-                            groups.length > 0 &&
-                            <div>
-                                <p className='py-2 px-4 text-gray-400 font-normal text-sm bg-dark-3'>Global Search Result</p>
-                                {
-                                    groups.map(group => (
-                                        <GroupCard _id={group._id} type='search' key={group._id} name={group.groupName} image={group.groupImage} />
-                                    ))
-                                }
-                            </div>
+                            groups.length > 0 ?
+                                <div>
+                                    <p className='py-2 px-4 text-gray-400 font-normal text-sm bg-dark-3'>Global Search Result</p>
+                                    {
+                                        groups.map(group => (
+                                            <GroupCard _id={group._id} type='search' key={group._id} name={group.groupName} image={group.groupImage} />
+                                        ))
+                                    }
+                                </div> : (
+                                    bots.length > 0 &&
+                                    <div>
+                                        <p className='py-2 px-4 text-gray-400 font-normal text-sm bg-dark-3'>Global Search Result</p>
+                                        {
+                                            bots.map(bot => (
+                                                <BotCard state={bot.type} _id={bot._id} type='search' key={bot._id} name={bot.botName} image={bot.botImage} />
+                                            ))
+                                        }
+                                    </div>
+                                )
                         )
                 )
             }
@@ -178,12 +213,22 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
                     <div>
                         <p className='py-2 px-4 text-gray-400 font-normal text-sm bg-dark-3'>Global Groups</p>
                         {
-                            groups.map(group => (
+                            groups.map(group => group.group?._id ? (
                                 <GroupCard _id={group.group?._id} type={path} key={group.group?._id} name={group.group?.groupName} image={group.group?.groupImage} />
+                            ) : (null))
+                        }
+                    </div>
+                ) : (
+                    bots.length > 0 && !isSearch &&
+                    <div>
+                        <p className='py-2 px-4 text-gray-400 font-normal text-sm bg-dark-3'>Global Bots</p>
+                        {
+                            bots.map(bot => (
+                                <BotCard state={bot.bot?.type} _id={bot.bot?._id} type={path} key={bot.bot?._id} name={bot.bot?.botName} image={bot.bot?.botImage} />
                             ))
                         }
                     </div>
-                ) : (null)
+                )
             }
         </section>
     )

@@ -1,3 +1,5 @@
+import { string } from "zod";
+
 export interface User {
     id: string,
     name: string,
@@ -25,6 +27,7 @@ export interface Message {
     },
     sender?: User,
     receiver?: User,
+    Bot?: Bot
 
 }
 export interface Group {
@@ -32,4 +35,11 @@ export interface Group {
     groupName: string,
     groupImage: string,
     groupAdmin?: User
+}
+export interface Bot {
+    _id: string,
+    botName: string,
+    botImage: string,
+    botAdmin?: User;
+    type: string
 }
