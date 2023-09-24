@@ -1,10 +1,10 @@
 import {Add, Group, Message, Person,AddBox,SmartToyTwoTone} from '@mui/icons-material'
 export const sidebarLink = [
-    {
-        name: 'Last Messages',
-        href: '/',
-        icon: Message
-    },
+    // {
+    //     name: 'Last Messages',
+    //     href: '/',
+    //     icon: Message
+    // },
     {
         name: 'Contact',
         href: '/contact',

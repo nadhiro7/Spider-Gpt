@@ -75,42 +75,42 @@ function ChatBar({ id, _id }: { id: string | undefined, _id: string | undefined 
             } else {
                 if (path === '/') {
                     setContacts([])
-                    setGroups([])
-                    setBots([])
-                    const result = await getUsersWithLastMessages(_id);
-                    let msgs: Array<User> = [];
-                    result.forEach(element => {
-                        if (element.sender._id === _id) {
-                            msgs.push({ ...element.receiver, message: element.messageText, timestamp: element.timestamp })
-                        } else {
-                            msgs.push({ ...element.sender, message: element.messageText, timestamp: element.timestamp })
-                        }
-                    });
-                    let m: Array<User> = []
-                    msgs.forEach(element => {
-                        let y = false;
-                        let msg: User;
-                        msgs.forEach(e => {
-                            if (element = e) {
-                                y = true
-                                msg = element
-                            } else {
-                                //@ts-ignore
-                                if (element._id === e._id) {
-                                    //@ts-ignore
-                                    if (element.timestamp > e.timestamp) {
-                                        y = true
-                                        msg = element
-                                    }
-                                }
-                            }
-                        })
-                        //@ts-ignore
-                        if (y && !m.includes(msg)) {
-                            m.push(element)
-                        }
-                    });
-                    setContacts(m)
+                    // setGroups([])
+                    // setBots([])
+                    // const result = await getUsersWithLastMessages(_id);
+                    // let msgs: Array<User> = [];
+                    // result.forEach(element => {
+                    //     if (element.sender._id === _id) {
+                    //         msgs.push({ ...element.receiver, message: element.messageText, timestamp: element.timestamp })
+                    //     } else {
+                    //         msgs.push({ ...element.sender, message: element.messageText, timestamp: element.timestamp })
+                    //     }
+                    // });
+                    // let m: Array<User> = []
+                    // msgs.forEach(element => {
+                    //     let y = false;
+                    //     let msg: User;
+                    //     msgs.forEach(e => {
+                    //         if (element = e) {
+                    //             y = true
+                    //             msg = element
+                    //         } else {
+                    //             //@ts-ignore
+                    //             if (element._id === e._id) {
+                    //                 //@ts-ignore
+                    //                 if (element.timestamp > e.timestamp) {
+                    //                     y = true
+                    //                     msg = element
+                    //                 }
+                    //             }
+                    //         }
+                    //     })
+                    //     //@ts-ignore
+                    //     if (y && !m.includes(msg)) {
+                    //         m.push(element)
+                    //     }
+                    // });
+                    // setContacts(m)
                 } else {
                     if (path === '/groups') {
                         setContacts([])
